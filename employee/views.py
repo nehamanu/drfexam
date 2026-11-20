@@ -1,3 +1,5 @@
+from functools import partial
+
 from django.shortcuts import render,get_object_or_404
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.views import APIView
@@ -36,16 +38,16 @@ class RetrieveUpdateDelete(APIView):
     def put(self,request,id):
         e= get_object_or_404(Employee, id=id)
         self.check_object_permissions(e,request)
-        serializer_instance =EmployeeSerializer(e)
+        serializer_instance =EmployeeSerializer(e,data=request.data)
         if serializer_instance.is_valid():
             serializer_instance.save()
-            return Response(data=serializer_instance.data,status=status.HTTP_201_CREATED)
+            return Response(data=serializer_instance.data,status=status.HTTP_200_OK)
         else:
             return Response(data=serializer_instance.errors,status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self,request,id):
         e= get_object_or_404(Employee, id=id)
-        self.check_object_permissions(e,request)
+        self.check_object_permissions(e,data=request.data,partial=True)
         serializer_instance =EmployeeSerializer(e)
         if serializer_instance.is_valid():
             serializer_instance.save()
